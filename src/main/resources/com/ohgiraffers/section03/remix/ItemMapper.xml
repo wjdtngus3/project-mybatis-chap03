@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ohgiraffers.section03.remix.ItemMapper">
+
+    <resultMap id="itemResultMap" type="com.ohgiraffers.section03.remix.ItemDTO">
+        <id property="code" column="ITEM_CODE"/>
+        <result property="name" column="ITEM_NAME"/>
+        <result property="price" column="ITEM_PRICE"/>
+        <result property="categoryCode" column="CATEGORY_CODE"/>
+    </resultMap>
+
+    <select id="searchItem" resultMap="itemResultMap" parameterType="com.ohgiraffers.section03.remix.SearchCriteria">
+    SELECT
+    ITEM_CODE
+    , ITEM_NAME
+    , ITEM_PRICE
+    , CATEGORY_CODE
+    FROM TBL_ITEM
+
+<!--   틀린코드 <where>-->
+<!--    <if test="condition == 'category'">-->
+<!--        JOIN TBL_CATEGORY USING(CATEGORY_CODE)-->
+<!--    </if>-->
+<!--    <if test="condition == 'name'">-->
+<!--        ITEM_NAME LIKE '%' || #{ value } || '%'-->
+<!--    </if>-->
+<!--    <if test="condition == 'category'">-->
+<!--        AND CATEGORY_NAME = #{ value }-->
+<!--    </if>-->
+<!--    </where>-->
+<!--    ORDER BY ITEM_CODE-->
+
+        <choose>
+            <when test="condition == 'category'">
+                JOIN TBL_CATEGORY USING(CATEGORY_CODE)
+                WHERE CATEGORY_NAME = #{value}
+            </when>
+            <when test="condition == 'name'">
+                WHERE ITEM_NAME LIKE '%' || #{value} || '%'
+            </when>
+            <otherwise>
+
+            </otherwise>
+        </choose>
+        ORDER BY ITEM_CODE
+    </select>
+
+    <select id="selectAllItem" resultMap="itemResultMap">
+        SELECT
+               ITEM_CODE
+             , ITEM_NAME
+             , ITEM_PRICE
+             , CATEGORY_CODE
+          FROM TBL_ITEM
+         ORDER BY ITEM_CODE
+    </select>
+
+
+    <select id="selectItemByCode" parameterType="_int" resultMap="itemResultMap">
+        SELECT
+               ITEM_CODE
+             , ITEM_NAME
+             , ITEM_PRICE
+             , CATEGORY_CODE
+          FROM TBL_ITEM
+         WHERE ITEM_CODE = #{ code }
+    </select>
+
+
+    <insert id="insertItem" parameterType="com.ohgiraffers.section03.remix.ItemDTO">
+        INSERT
+          INTO TBL_ITEM
+        (
+          ITEM_CODE
+        , ITEM_NAME
+        , ITEM_PRICE
+        , CATEGORY_CODE
+        )
+        VALUES
+        (
+          SEQ_ITEM_CODE.NEXTVAL
+        , #{ name }
+        , #{ price }
+        , #{ categoryCode }
+        )
+    </insert>
+
+    <update id="updateItem" parameterType="com.ohgiraffers.section03.remix.ItemDTO">
+        UPDATE
+               TBL_ITEM
+           SET ITEM_NAME = #{ name }
+             , ITEM_PRICE = #{ price }
+             , CATEGORY_CODE = #{ categoryCode }
+         WHERE ITEM_CODE = #{ code }
+    </update>
+
+    <delete id="deleteItem" parameterType="_int">
+        DELETE
+          FROM TBL_ITEM
+         WHERE ITEM_CODE = #{ code }
+    </delete>
+
+
+</mapper>
